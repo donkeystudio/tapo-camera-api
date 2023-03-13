@@ -45,7 +45,8 @@ or with a custom configuration file
 
 ### List camera privacy statuses
 
-http://0.0.0.0:5020/privacy
+Request method: GET
+URL: http://0.0.0.0:5020/privacy
 
 #### Response example
 
@@ -64,7 +65,8 @@ http://0.0.0.0:5020/privacy
 
 ### Enable or disable privacy statuses
 
-http://0.0.0.0:5020/privacy
+Request method: POST
+URL: http://0.0.0.0:5020/privacy
 
 #### Request examples
 
