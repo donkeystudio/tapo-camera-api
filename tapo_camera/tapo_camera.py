@@ -24,8 +24,10 @@ class TapoCamera:
             self.__conf = json.load(configuration)
         configuration.close()
 
-        # FIXME: map each item to TapoCameraHost
-        self.__hosts = self.__conf['hosts']
+        self.__hosts: [TapoCameraHost] = []
+        for host in self.__conf['hosts']:
+            self.__hosts.append(TapoCameraHost(host['host'], host['name']))
+
         self.__user = self.__conf['user']
         self.__password = self.__conf['password']
 
@@ -33,12 +35,12 @@ class TapoCamera:
         with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
             return list(executor.map(self.__get_privacy_status, self.__hosts))
 
-    def __get_privacy_status(self, host: dict, retry_count=0) -> Privacy:
+    def __get_privacy_status(self, host: TapoCameraHost, retry_count=0) -> Privacy:
         try:
-            tapo = Tapo(host['host'], self.__user, self.__password)
+            tapo = Tapo(host.host, self.__user, self.__password)
             privacy_mode: dict = tapo.getPrivacyMode()
             is_privacy_enabled = privacy_mode['enabled'] == self.__PRIVACY_MODE_ENABLED
-            return Privacy(host['host'], is_privacy_enabled, host['name'])
+            return Privacy(host.host, is_privacy_enabled, host.name)
         except:
             logger.exception('Error while fetching camera privacy status')
 
@@ -51,9 +53,9 @@ class TapoCamera:
             return list(executor.map(self.__set_privacy_mode(enable_privacy), self.__hosts))
 
     def __set_privacy_mode(self, enable_privacy: bool):
-        def __privacy(host: dict) -> Privacy:
-            tapo = Tapo(host['host'], self.__user, self.__password)
+        def __privacy(host: TapoCameraHost) -> Privacy:
+            tapo = Tapo(host.host, self.__user, self.__password)
             tapo.setPrivacyMode(enable_privacy)
-            return Privacy(host['host'], enable_privacy, host['name'])
+            return Privacy(host.host, enable_privacy, host.name)
 
         return __privacy
