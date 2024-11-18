@@ -18,7 +18,7 @@ The application needs to be configured so that it knows what cameras it should i
 
 ### Example configuration
 
-```Javascript
+```json
 {
   "user": "camera_local_user",
   "password": "password",
@@ -44,13 +44,20 @@ or with a custom configuration file
 ## Endpoints
 
 ### List camera privacy statuses
+* Request method: GET
+* URL: http://0.0.0.0:5020/privacy
+* Request body:
+  * `host`: Optional. Without request body, status of all cameras will be returned.
 
-Request method: GET
-URL: http://0.0.0.0:5020/privacy
+#### Request example
+```json
+{
+  "host":"C200_ABCDEFG"
+}
+```
 
 #### Response example
-
-```Javascript
+```json
 {
   "data": [
     {
@@ -58,37 +65,38 @@ URL: http://0.0.0.0:5020/privacy
       "privacy_enabled": true,
       "name": "Foyer"
     }
-  ]
-  status": "OK"
+  ],
+  "status": "OK"
 }
 ```
 
 ### Enable or disable privacy statuses
-
-Request method: POST
-URL: http://0.0.0.0:5020/privacy
+* Request method: `POST`
+* URL: http://0.0.0.0:5020/privacy
+* Request body:
+  * `privacy`: true/false. Required.
+  * `host`: Optional. Enable/Disable all cameras if not passed.
 
 #### Request examples
-
 ##### Enable privacy mode
-
-```Javascript
+```json
 {
-  "privacy": true
+  "privacy": true,
+  "host":"C200_ABCDEFG"
 }
 ```
 
 ##### Disable privacy mode
 
-```Javascript
+```json
 {
-  "privacy": false
+  "privacy": false,
+  "host":"C200_ABCDEFG"
 }
 ```
 
 #### Response example
-
-```Javascript
+```json
 {
   "data": [
     {
@@ -96,8 +104,8 @@ URL: http://0.0.0.0:5020/privacy
       "privacy_enabled": true,
       "name": "Foyer"
     }
-  ]
-  status": "OK"
+  ],
+  "status": "OK"
 }
 ```
 

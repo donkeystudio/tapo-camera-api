@@ -1,5 +1,10 @@
 {
   "user": "user",
   "password": "password",
-  "hosts": []
+  "hosts": [
+    {
+      "host":"Camera IP Address",
+      "name":"Camera Name"
+    }
+  ]
 }

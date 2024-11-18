@@ -34,13 +34,24 @@ class TapoCamera:
     def get_privacy_statuses(self, retry_count: int = 0) -> [Privacy]:
         with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
             return list(executor.map(self.__get_privacy_status, self.__hosts))
+        
+    def get_privacy_status(self, host: str) -> Privacy:
+        # Check if the host is in the list of hosts
+        if host not in [x.host for x in self.__hosts]:
+            raise ValueError('Host not found in the list of hosts')
+        else:
+            name: str = next((x.name for x in self.__hosts if x.host == host), None)
+        return self.__get_privacy_status(TapoCameraHost(host, name))
 
     def __get_privacy_status(self, host: TapoCameraHost, retry_count=0) -> Privacy:
         try:
             tapo = Tapo(host.host, self.__user, self.__password)
             privacy_mode: dict = tapo.getPrivacyMode()
             is_privacy_enabled = privacy_mode['enabled'] == self.__PRIVACY_MODE_ENABLED
-            return Privacy(host.host, is_privacy_enabled, host.name)
+            # Find the name of the camera from self.__hosts
+            name: str = next((x.name for x in self.__hosts if x.host == host.host), host.name)
+
+            return Privacy(host.host, is_privacy_enabled, name)
         except:
             logger.exception('Error while fetching camera privacy status')
 
@@ -51,11 +62,21 @@ class TapoCamera:
     def set_privacy_modes(self, enable_privacy: bool) -> [Privacy]:
         with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
             return list(executor.map(self.__set_privacy_mode(enable_privacy), self.__hosts))
+        
+    def set_privacy_mode(self, host: str, enable_privacy: bool) -> Privacy:
+        # Check if the host is in the list of hosts
+        if host not in [x.host for x in self.__hosts]:
+            raise ValueError('Host not found in the list of hosts')
+        else:
+            name: str = next((x.name for x in self.__hosts if x.host == host), None)
+        return self.__set_privacy_mode(enable_privacy)(TapoCameraHost(host, name))
 
     def __set_privacy_mode(self, enable_privacy: bool):
         def __privacy(host: TapoCameraHost) -> Privacy:
             tapo = Tapo(host.host, self.__user, self.__password)
             tapo.setPrivacyMode(enable_privacy)
-            return Privacy(host.host, enable_privacy, host.name)
+            # Find the name of the camera from self.__hosts
+            name: str = next((x.name for x in self.__hosts if x.host == host.host), host.name)
+            return Privacy(host.host, enable_privacy, name)
 
         return __privacy
